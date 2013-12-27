@@ -1,3 +1,4 @@
+/* XXX find overhead time of calling rtems_task_wake_after */
 #include <rtems.h>
 
 #include <stdio.h>
@@ -11,28 +12,29 @@ rtems_task Init(rtems_task_argument ignored);
 
 rtems_id           Task_id[2];
 rtems_name         Task_name[2];
-unsigned long      overhead_time;
-unsigned long      count;
+unsigned long      loop_overhead;
+unsigned long      dir_overhead;
+unsigned long      count1, count2;
 rtems_status_code  status;
 
 rtems_task Task02( rtems_task_argument ignored )
 {
-  float total_elapsed_time;
+  unsigned long telapsed;
 
   /* All overhead accounted for now, we can begin benchmark */
   benchmark_timer_initialize();
 
-  for ( count = 0; count < MAX_LOOPS - 1; count++ ) {
+  for ( count1 = 0; count1 < MAX_LOOPS - 1; count1++ ) {
     rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
 
-  total_elapsed_time = benchmark_timer_read();
+  telapsed = benchmark_timer_read();
   put_time(
      "Rhealstone: Task switch",
-     total_elapsed_time,
-     (MAX_LOOPS * 2) - 1,               /* MAX_LOOP iterations in each task */
-     overhead_time,                     /* Overhead time of loop */
-     0                                  /* Rest of overhead has been accounted for */
+     telapsed,
+     count1 + count2,          /* count1 + count2 total iterations */
+     loop_overhead,            /* Overhead of loop */
+     dir_overhead              /* Overhead of rtems_task_wake_after directive */
   );
 
   rtems_test_exit( 0 );
@@ -46,7 +48,7 @@ rtems_task Task01( rtems_task_argument ignored )
   /* Yield processor so second task can startup and run */
   rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
 
-  for ( count = 0; count < MAX_LOOPS; count++ ) {
+  for ( count2 = 0; count2 < MAX_LOOPS; count2++ ) {
     rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
 
@@ -57,14 +59,10 @@ rtems_task Task01( rtems_task_argument ignored )
 
 rtems_task Init( rtems_task_argument ignored )
 {
-  rtems_task_priority  pri;
-  status = rtems_task_set_priority(RTEMS_SELF, RTEMS_CURRENT_PRIORITY, &pri);
-  directive_failed( status, "rtems_task_set_priority");
-
   Task_name[0] = rtems_build_name( 'T','A','0','1');
   status = rtems_task_create(
     Task_name[0],
-    (int) pri,
+    30,
     RTEMS_MINIMUM_STACK_SIZE,
     RTEMS_DEFAULT_MODES,
     RTEMS_DEFAULT_ATTRIBUTES,
@@ -75,7 +73,7 @@ rtems_task Init( rtems_task_argument ignored )
   Task_name[1] = rtems_build_name( 'T','A','0','2');
   status = rtems_task_create(
     Task_name[1],
-    (int) pri,
+    30,
     RTEMS_MINIMUM_STACK_SIZE,
     RTEMS_DEFAULT_MODES,
     RTEMS_DEFAULT_ATTRIBUTES,
@@ -83,12 +81,20 @@ rtems_task Init( rtems_task_argument ignored )
   );
   directive_failed( status, "rtems_task_create of TA02");
 
-  /* calculate overhead of routine (no task switches) */
+  /* find overhead of routine (no task switches) */
   benchmark_timer_initialize();
-  for ( count = 0; count < MAX_LOOPS * 2; count++ ) {
+  for ( count1 = 0; count1 < MAX_LOOPS - 1; count1++ ) {
     /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
   }
-  overhead_time = benchmark_timer_read();
+  for ( count2 = 0; count2 < MAX_LOOPS; count2++ ) {
+    /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
+  }
+  loop_overhead = benchmark_timer_read();
+
+  /* find overhead of rtems_task_wake_after call (no task switches) */
+  benchmark_timer_initialize();
+  rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+  dir_overhead = benchmark_timer_read();
 
   status = rtems_task_start( Task_id[0], Task01, 0);
   directive_failed( status, "rtems_task_start of TA01");

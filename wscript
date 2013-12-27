@@ -37,6 +37,7 @@ def build(bld):
     rtems.build(bld)
     bld.env.CFLAGS += ['-O2','-g']
     bld.recurse('task-switch')
+    bld.recurse('task-preempt')
 
 def rebuild(ctx):
     import waflib.Options
