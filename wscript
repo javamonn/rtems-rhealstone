@@ -38,7 +38,7 @@ def build(bld):
     bld.env.CFLAGS += ['-O2','-g']
     bld.recurse('task-switch')
     bld.recurse('task-preempt')
-
+    bld.recurse('interrupt-latency')
 def rebuild(ctx):
     import waflib.Options
     waflib.Options.commands.extend(['clean', 'build'])

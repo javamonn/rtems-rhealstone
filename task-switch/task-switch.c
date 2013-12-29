@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
-#include <inttypes.h>
+
 #define MAX_LOOPS 20000
 
 rtems_task Tasks(rtems_task_argument ignored);
