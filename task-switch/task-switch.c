@@ -1,25 +1,24 @@
-/* XXX find overhead time of calling rtems_task_wake_after */
 #include <rtems.h>
-
+#include <rtems/timerdrv.h>
 #include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
-
-#define MAX_LOOPS 50000
+#include <inttypes.h>
+#define MAX_LOOPS 20000
 
 rtems_task Tasks(rtems_task_argument ignored);
 rtems_task Init(rtems_task_argument ignored);
 
 rtems_id           Task_id[2];
 rtems_name         Task_name[2];
-unsigned long      loop_overhead;
-unsigned long      dir_overhead;
+uint32_t           loop_overhead;
+uint32_t           dir_overhead;
 unsigned long      count1, count2;
 rtems_status_code  status;
 
 rtems_task Task02( rtems_task_argument ignored )
 {
-  unsigned long telapsed;
+  uint32_t telapsed;
 
   /* All overhead accounted for now, we can begin benchmark */
   benchmark_timer_initialize();
@@ -105,7 +104,8 @@ rtems_task Init( rtems_task_argument ignored )
 
 /* configuration information */
 #define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+#define CONFIGURE_APPLICATION_NEEDS_TIMER_DRIVER
+#define CONFIGURE_TICKS_PER_TIMESLICE        0
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 #define CONFIGURE_MAXIMUM_TASKS 3
 #define CONFIGURE_INIT
