@@ -39,6 +39,8 @@ def build(bld):
     bld.recurse('task-switch')
     bld.recurse('task-preempt')
     bld.recurse('interrupt-latency')
+    bld.recurse('semaphore-shuffle')
+
 def rebuild(ctx):
     import waflib.Options
     waflib.Options.commands.extend(['clean', 'build'])
