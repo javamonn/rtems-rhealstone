@@ -40,6 +40,7 @@ def build(bld):
     bld.recurse('task-preempt')
     bld.recurse('interrupt-latency')
     bld.recurse('semaphore-shuffle')
+    bld.recurse('message-latency')
 
 def rebuild(ctx):
     import waflib.Options
