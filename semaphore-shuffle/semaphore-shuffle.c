@@ -25,13 +25,16 @@ rtems_id    sem_id;
 rtems_name  sem_name;
 
 uint32_t    telapsed;
-uint32_t    loop_overhead;
+uint32_t    tswitch_overhead;
 uint32_t    count;
+uint32_t    sem_exe;
 
 rtems_task Init( rtems_task_argument ignored )
 {
-  rtems_status_code status;
-  rtems_attribute sem_attr;
+  rtems_status_code    status;
+  rtems_attribute      sem_attr;
+  rtems_task_priority  pri;
+  rtems_mode           prev_mode;
 
   sem_attr =  RTEMS_BINARY_SEMAPHORE | RTEMS_PRIORITY;
 
@@ -67,32 +70,51 @@ rtems_task Init( rtems_task_argument ignored )
   );
   directive_failed( status , "rtems_task_create of TA02\n" );
 
+
+  /* Get time of benchmark with no semaphore shuffling */
+  sem_exe = 0;
   status = rtems_task_start( Task_id[0], Task01, 0 );
   directive_failed( status, "rtems_task_start of TA01" );
 
-  status = rtems_task_delete( RTEMS_SELF );
-  directive_failed( status, "rtems_task_delete of INIT");
+  rtems_task_mode( RTEMS_PREEMPT, RTEMS_PREEMPT_MASK, &prev_mode );
+
+  /* Lower own priority so TA01 can start up and run */
+  rtems_task_set_priority( RTEMS_SELF, 40, &pri);
+
+  /* Get time of benchmark with semaphore shuffling */
+  sem_exe = 1;
+  status = rtems_task_restart( Task_id[0], 0 );
+  directive_failed( status, "rtems_task_restart of TA01" ); 
+
+  /* Should never reach here */
+  rtems_test_assert( false );
 }
 
 rtems_task Task01( rtems_task_argument ignored )
 {
   rtems_status_code status;
 
-  status = rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
-  directive_failed( status, "rtems_semaphore_obtain of S0\n" );
-
   /* Start up TA02, yield so it can run */
-  status = rtems_task_start( Task_id[1], Task02, 0 );
-  directive_failed( status, "rtems_task_start of TA01" );
-
+  if ( sem_exe == 0 ) {
+    status = rtems_task_start( Task_id[1], Task02, 0 );
+    directive_failed( status, "rtems_task_start of TA02" );
+  } else {
+    status = rtems_task_restart( Task_id[1], 0 );
+    directive_failed( status, "rtems_task_restart of TA02" );
+  }
   rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
 
   /* Benchmark code */
   for ( ; count < BENCHMARKS ; ) {
-    /* TA02 now owns semaphore after we release it, no preempt */
-    rtems_semaphore_release( sem_id );
-    /* Attempt to aquire semaphore, block on call */
-    rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
+    if ( sem_exe == 1 ) {
+      rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
+    }
+    rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+
+    if ( sem_exe == 1 ) {
+      rtems_semaphore_release( sem_id );
+    }
+    rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
 
   /* Should never reach here */
@@ -104,19 +126,32 @@ rtems_task Task02( rtems_task_argument ignored )
 
   /* Benchmark code */
   benchmark_timer_initialize();
-  for ( count = 0; count < BENCHMARKS - 1; count++ ) {
-    /* Block on semaphore, switch to TA01 */
-    rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
-    /* Release semaphore, TA01 now owns, loop, no preempt */
-    rtems_semaphore_release( sem_id );
+  for ( count = 0; count < BENCHMARKS; count++ ) {
+    if ( sem_exe == 1 ) {
+      rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
+    }
+    rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
+
+    if ( sem_exe == 1 ) {
+      rtems_semaphore_release( sem_id );
+    }
+    rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
   telapsed = benchmark_timer_read();
 
-  put_time(
-     "Rhealstone: Semaphore Shuffle",
-     telapsed,
-     (BENCHMARKS * 2) - 1, /* Total number of semaphore-shuffles*/
-     loop_overhead,        /* Overhead of loop */
-     0                     /* No overhead, obtain/relase part of shuffle */
-  );
+  /* Check which run this was */
+  if (sem_exe == 0) {
+    tswitch_overhead = telapsed;
+    rtems_task_suspend( Task_id[0] );
+    rtems_task_suspend( RTEMS_SELF );
+  } else {
+    put_time(
+       "Rhealstone: Semaphore Shuffle",
+       telapsed,
+       (BENCHMARKS * 2),        /* Total number of semaphore-shuffles*/
+       tswitch_overhead,        /* Overhead of loop and task switches */
+       0
+    );
+    rtems_test_exit( 0 );
+  }
 }
