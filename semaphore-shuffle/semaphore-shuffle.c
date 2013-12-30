@@ -59,7 +59,7 @@ rtems_task Init( rtems_task_argument ignored )
   Task_name[1] = rtems_build_name( 'T','A','0','2' );
   status = rtems_task_create(
     Task_name[1],
-    28,
+    30,
     RTEMS_MINIMUM_STACK_SIZE,
     RTEMS_DEFAULT_MODES,
     RTEMS_DEFAULT_ATTRIBUTES,
@@ -78,15 +78,21 @@ rtems_task Task01( rtems_task_argument ignored )
 {
   rtems_status_code status;
 
-  rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
+  status = rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
   directive_failed( status, "rtems_semaphore_obtain of S0\n" );
 
-  /* TA02 preempts, starts up */
-  rtems_task_start( Task_id[1], Task02, 0 );
+  /* Start up TA02, yield so it can run */
+  status = rtems_task_start( Task_id[1], Task02, 0 );
+  directive_failed( status, "rtems_task_start of TA01" );
+
+  rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
 
   /* Benchmark code */
   for ( ; count < BENCHMARKS ; ) {
-    rtems_semaphore_release(sem_id);
+    /* TA02 now owns semaphore after we release it, no preempt */
+    rtems_semaphore_release( sem_id );
+    /* Attempt to aquire semaphore, block on call */
+    rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
   }
 
   /* Should never reach here */
@@ -101,14 +107,16 @@ rtems_task Task02( rtems_task_argument ignored )
   for ( count = 0; count < BENCHMARKS - 1; count++ ) {
     /* Block on semaphore, switch to TA01 */
     rtems_semaphore_obtain( sem_id, RTEMS_WAIT, 0 );
+    /* Release semaphore, TA01 now owns, loop, no preempt */
+    rtems_semaphore_release( sem_id );
   }
   telapsed = benchmark_timer_read();
 
   put_time(
      "Rhealstone: Semaphore Shuffle",
      telapsed,
-     BENCHMARKS,         /* BENCHMARKS times a "semaphore shuffle" occurs*/
-     loop_overhead,      /* Overhead of loop */
-     0                   /* No overhead, obtain/relase part of shuffle */
+     (BENCHMARKS * 2) - 1, /* Total number of semaphore-shuffles*/
+     loop_overhead,        /* Overhead of loop */
+     0                     /* No overhead, obtain/relase part of shuffle */
   );
 }
