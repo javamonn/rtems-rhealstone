@@ -53,8 +53,8 @@ rtems_task Init(
   Print_Warning();
 
   if (_Scheduler.Operations.initialize != _Scheduler_priority_Initialize) {
-    puts("  Error ==> " );
-    puts("Test only supported for deterministic priority scheduler\n" );
+    puts( "  Error ==> " );
+    puts( "Test only supported for deterministic priority scheduler\n" );
     rtems_test_exit( 0 );
   }
 

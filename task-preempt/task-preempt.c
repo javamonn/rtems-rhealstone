@@ -1,6 +1,3 @@
-#include <rtems.h>
-
-#include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
 #include <rtems/timerdrv.h>
@@ -55,7 +52,7 @@ rtems_task Task02( rtems_task_argument ignored )
   put_time(
      "Rhealstone: Task Preempt",
      telapsed,                     /* Total time of all benchmarks */
-     count1,                       /* count1 benchmarks (only count1 preemptions) */
+     BENCHMARKS - 1,               /* BENCHMARKS - 1 total preemptions */
      tloop_overhead,               /* Overhead of loops */
      tswitch_overhead              /* Overhead of task switch back to TA01 */
   );
@@ -65,7 +62,7 @@ rtems_task Task02( rtems_task_argument ignored )
 
 rtems_task Init( rtems_task_argument ignored )
 {
-  Task_name[0] = rtems_build_name( 'T','A','0','1');
+  Task_name[0] = rtems_build_name( 'T','A','0','1' );
   status = rtems_task_create(
     Task_name[0],
     30,               /* TA01 is low priority task */
@@ -76,7 +73,7 @@ rtems_task Init( rtems_task_argument ignored )
   );
   directive_failed( status, "rtems_task_create of TA01");
 
-  Task_name[1] = rtems_build_name( 'T','A','0','2');
+  Task_name[1] = rtems_build_name( 'T','A','0','2' );
   status = rtems_task_create(
     Task_name[1],
     28,               /* TA02 is high priority task */
@@ -89,12 +86,12 @@ rtems_task Init( rtems_task_argument ignored )
 
   /* Find loop overhead */
   benchmark_timer_initialize();
-  for ( count1 = 0; count1 < (BENCHMARKS * 2) - 1; count1++ ); {
+  for ( count1 = 0; count1 < ( BENCHMARKS * 2 ) - 1; count1++ ); {
      /* rtems_task_resume( Task_id[1] ); */
   }
   tloop_overhead = benchmark_timer_read();
 
-  status = rtems_task_start( Task_id[0], Task01, 0);
+  status = rtems_task_start( Task_id[0], Task01, 0 );
   directive_failed( status, "rtems_task_start of TA01");
 
   status = rtems_task_delete( RTEMS_SELF );

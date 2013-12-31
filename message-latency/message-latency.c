@@ -2,9 +2,6 @@
 #include "config.h"
 #endif
 
-
-
-//#include <rtems.h>
 #include "tmacros.h"
 #include "timesys.h"
 #include <rtems/timerdrv.h>
@@ -39,7 +36,7 @@ void Init(
   );
   directive_failed( status, "rtems_message_queue_create" );
 
-  Task_name[0] = rtems_build_name( 'T','A','0','1');
+  Task_name[0] = rtems_build_name( 'T','A','0','1' );
   status = rtems_task_create(
     Task_name[0],
     30,               /* TA01 is low priority task */
@@ -131,4 +128,3 @@ rtems_task Task02( rtems_task_argument ignored )
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 
 #include <rtems/confdefs.h>
-

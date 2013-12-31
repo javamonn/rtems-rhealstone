@@ -1,6 +1,4 @@
-#include <rtems.h>
 #include <rtems/timerdrv.h>
-#include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
 
@@ -31,7 +29,7 @@ rtems_task Init( rtems_task_argument ignored )
 
   sem_attr = RTEMS_INHERIT_PRIORITY | RTEMS_BINARY_SEMAPHORE | RTEMS_PRIORITY;
 
-  sem_name = rtems_build_name( 'S','0',' ',' ');
+  sem_name = rtems_build_name( 'S','0',' ',' ' );
   status = rtems_semaphore_create(
     sem_name,
     1,
@@ -41,7 +39,7 @@ rtems_task Init( rtems_task_argument ignored )
   );
   directive_failed( status, "rtems_semaphore_create of S0" );
 
-  Task_name[0] = rtems_build_name( 'T','A','0','1');
+  Task_name[0] = rtems_build_name( 'T','A','0','1' );
   status = rtems_task_create(
     Task_name[0],
     26,  /* High priority task */
@@ -50,9 +48,9 @@ rtems_task Init( rtems_task_argument ignored )
     RTEMS_DEFAULT_ATTRIBUTES,
     &Task_id[0]
   );
-  directive_failed( status, "rtems_task_create of TA01");
+  directive_failed( status, "rtems_task_create of TA01" );
 
-  Task_name[1] = rtems_build_name( 'T','A','0','2');
+  Task_name[1] = rtems_build_name( 'T','A','0','2' );
   status = rtems_task_create(
     Task_name[1],
     28,  /* Mid priority task */
@@ -61,9 +59,9 @@ rtems_task Init( rtems_task_argument ignored )
     RTEMS_DEFAULT_ATTRIBUTES,
     &Task_id[1]
   );
-  directive_failed( status, "rtems_task_create of TA02");
+  directive_failed( status, "rtems_task_create of TA02" );
 
-  Task_name[2] = rtems_build_name( 'T','A','0','3');
+  Task_name[2] = rtems_build_name( 'T','A','0','3' );
   status = rtems_task_create(
     Task_name[2],
     30,  /* Low priority task */
@@ -72,7 +70,7 @@ rtems_task Init( rtems_task_argument ignored )
     RTEMS_DEFAULT_ATTRIBUTES,
     &Task_id[2]
   );
-  directive_failed( status, "rtems_task_create of TA03");
+  directive_failed( status, "rtems_task_create of TA03" );
 
   /* find overhead of obtaining semaphore */
   benchmark_timer_initialize();
@@ -82,17 +80,17 @@ rtems_task Init( rtems_task_argument ignored )
 
   rtems_task_mode( RTEMS_PREEMPT, RTEMS_PREEMPT_MASK, &prev_mode );
   /* Lower own priority so tasks can start up and run */
-  rtems_task_set_priority( RTEMS_SELF, 40, &pri);
+  rtems_task_set_priority( RTEMS_SELF, 40, &pri );
 
   /* Get time of benchmark with no semaphores involved, i.e. find overhead */
   sem_exe = 0;
-  status = rtems_task_start( Task_id[2], Task03, 0);
-  directive_failed( status, "rtems_task_start of TA03");
+  status = rtems_task_start( Task_id[2], Task03, 0 );
+  directive_failed( status, "rtems_task_start of TA03" );
 
   /* Get time of benchmark with semaphores */
   sem_exe = 1;
-  status = rtems_task_restart( Task_id[2], 0);
-  directive_failed( status, "rtems_task_start of TA03");
+  status = rtems_task_restart( Task_id[2], 0 );
+  directive_failed( status, "rtems_task_start of TA03" );
 
   /* Should never reach here */
   rtems_test_assert( false );
@@ -190,7 +188,6 @@ rtems_task Task03( rtems_task_argument ignored )
     /* Wake up TA02, get preempted */
     rtems_task_resume( Task_id[1] );
   }
-
 }
 
 /* configuration information */
@@ -202,4 +199,3 @@ rtems_task Task03( rtems_task_argument ignored )
 #define CONFIGURE_MAXIMUM_TASKS 4
 #define CONFIGURE_INIT
 #include <rtems/confdefs.h>
-

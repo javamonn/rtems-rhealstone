@@ -1,17 +1,5 @@
-#include <rtems.h>
-
-#include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
-
-/* configuration information */
-#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
-#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
-#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
-#define CONFIGURE_MAXIMUM_TASKS 4
-#define CONFIGURE_MAXIMUM_SEMAPHORES 1
-#define CONFIGURE_INIT
-#include <rtems/confdefs.h>
 
 #define BENCHMARKS 50000
 
@@ -19,8 +7,8 @@ rtems_task Task01( rtems_task_argument ignored );
 rtems_task Task02( rtems_task_argument ignored );
 rtems_task Init( rtems_task_argument ignored );
 
-rtems_id   Task_id[3];
-rtems_name Task_name[3];
+rtems_id   Task_id[2];
+rtems_name Task_name[2];
 rtems_id    sem_id;
 rtems_name  sem_name;
 
@@ -38,7 +26,7 @@ rtems_task Init( rtems_task_argument ignored )
 
   sem_attr =  RTEMS_BINARY_SEMAPHORE | RTEMS_PRIORITY;
 
-  sem_name = rtems_build_name( 'S','0',' ',' ');
+  sem_name = rtems_build_name( 'S','0',' ',' ' );
   status = rtems_semaphore_create(
     sem_name,
     1,
@@ -153,3 +141,12 @@ rtems_task Task02( rtems_task_argument ignored )
     rtems_test_exit( 0 );
   }
 }
+
+/* configuration information */
+#define CONFIGURE_APPLICATION_NEEDS_CONSOLE_DRIVER
+#define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
+#define CONFIGURE_RTEMS_INIT_TASKS_TABLE
+#define CONFIGURE_MAXIMUM_TASKS 3
+#define CONFIGURE_MAXIMUM_SEMAPHORES 1
+#define CONFIGURE_INIT
+#include <rtems/confdefs.h>

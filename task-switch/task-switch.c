@@ -1,10 +1,8 @@
-#include <rtems.h>
 #include <rtems/timerdrv.h>
-#include <stdio.h>
 #include "tmacros.h"
 #include "timesys.h"
 
-#define MAX_LOOPS 50000
+#define BENCHMARKS 50000
 
 rtems_task Task02(rtems_task_argument ignored);
 rtems_task Init(rtems_task_argument ignored);
@@ -23,7 +21,7 @@ rtems_task Task02( rtems_task_argument ignored )
   /* All overhead accounted for now, we can begin benchmark */
   benchmark_timer_initialize();
 
-  for ( count1 = 0; count1 < MAX_LOOPS - 1; count1++ ) {
+  for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
     rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
 
@@ -31,7 +29,7 @@ rtems_task Task02( rtems_task_argument ignored )
   put_time(
      "Rhealstone: Task switch",
      telapsed,
-     count1 + count2,          /* count1 + count2 total iterations */
+     ( BENCHMARKS * 2 ) - 1,   /* ( BENCHMARKS * 2 ) - 1 total benchmarks */
      loop_overhead,            /* Overhead of loop */
      dir_overhead              /* Overhead of rtems_task_wake_after directive */
   );
@@ -42,12 +40,12 @@ rtems_task Task02( rtems_task_argument ignored )
 rtems_task Task01( rtems_task_argument ignored )
 {
   status = rtems_task_start( Task_id[1], Task02, 0 );
-  directive_failed( status, "rtems_task_start of TA02");
+  directive_failed( status, "rtems_task_start of TA02" );
 
   /* Yield processor so second task can startup and run */
   rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
 
-  for ( count2 = 0; count2 < MAX_LOOPS; count2++ ) {
+  for ( count2 = 0; count2 < BENCHMARKS; count2++ ) {
     rtems_task_wake_after( RTEMS_YIELD_PROCESSOR );
   }
 
@@ -58,7 +56,7 @@ rtems_task Task01( rtems_task_argument ignored )
 
 rtems_task Init( rtems_task_argument ignored )
 {
-  Task_name[0] = rtems_build_name( 'T','A','0','1');
+  Task_name[0] = rtems_build_name( 'T','A','0','1' );
   status = rtems_task_create(
     Task_name[0],
     30,
@@ -67,9 +65,9 @@ rtems_task Init( rtems_task_argument ignored )
     RTEMS_DEFAULT_ATTRIBUTES,
     &Task_id[0]
   );
-  directive_failed( status, "rtems_task_create of TA01");
+  directive_failed( status, "rtems_task_create of TA01" );
 
-  Task_name[1] = rtems_build_name( 'T','A','0','2');
+  Task_name[1] = rtems_build_name( 'T','A','0','2' );
   status = rtems_task_create(
     Task_name[1],
     30,
@@ -78,14 +76,14 @@ rtems_task Init( rtems_task_argument ignored )
     RTEMS_DEFAULT_ATTRIBUTES,
     &Task_id[1]
   );
-  directive_failed( status, "rtems_task_create of TA02");
+  directive_failed( status, "rtems_task_create of TA02" );
 
   /* find overhead of routine (no task switches) */
   benchmark_timer_initialize();
-  for ( count1 = 0; count1 < MAX_LOOPS - 1; count1++ ) {
+  for ( count1 = 0; count1 < BENCHMARKS - 1; count1++ ) {
     /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
   }
-  for ( count2 = 0; count2 < MAX_LOOPS; count2++ ) {
+  for ( count2 = 0; count2 < BENCHMARKS; count2++ ) {
     /* rtems_task_wake_after( RTEMS_YIELD_PROCESSOR ) */
   }
   loop_overhead = benchmark_timer_read();
@@ -96,10 +94,10 @@ rtems_task Init( rtems_task_argument ignored )
   dir_overhead = benchmark_timer_read();
 
   status = rtems_task_start( Task_id[0], Task01, 0);
-  directive_failed( status, "rtems_task_start of TA01");
+  directive_failed( status, "rtems_task_start of TA01" );
 
   status = rtems_task_delete( RTEMS_SELF);
-  directive_failed( status, "rtems_task_delete of INIT");
+  directive_failed( status, "rtems_task_delete of INIT" );
 }
 
 /* configuration information */
@@ -110,5 +108,3 @@ rtems_task Init( rtems_task_argument ignored )
 #define CONFIGURE_MAXIMUM_TASKS 3
 #define CONFIGURE_INIT
 #include <rtems/confdefs.h>
-
-
