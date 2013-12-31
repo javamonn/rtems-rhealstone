@@ -4,7 +4,7 @@
 #include "tmacros.h"
 #include "timesys.h"
 
-#define BENCHMARKS 2
+#define BENCHMARKS 20000
 
 rtems_task Task01( rtems_task_argument ignored );
 rtems_task Task02( rtems_task_argument ignored );
