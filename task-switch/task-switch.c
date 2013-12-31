@@ -4,9 +4,9 @@
 #include "tmacros.h"
 #include "timesys.h"
 
-#define MAX_LOOPS 20000
+#define MAX_LOOPS 50000
 
-rtems_task Tasks(rtems_task_argument ignored);
+rtems_task Task02(rtems_task_argument ignored);
 rtems_task Init(rtems_task_argument ignored);
 
 rtems_id           Task_id[2];

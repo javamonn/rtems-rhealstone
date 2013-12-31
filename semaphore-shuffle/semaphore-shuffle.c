@@ -9,7 +9,7 @@
 #define CONFIGURE_APPLICATION_NEEDS_CLOCK_DRIVER
 #define CONFIGURE_RTEMS_INIT_TASKS_TABLE
 #define CONFIGURE_MAXIMUM_TASKS 4
-#define CONFIGURE_MAXIMUM_SEMAPHORES 2
+#define CONFIGURE_MAXIMUM_SEMAPHORES 1
 #define CONFIGURE_INIT
 #include <rtems/confdefs.h>
 
@@ -70,16 +70,14 @@ rtems_task Init( rtems_task_argument ignored )
   );
   directive_failed( status , "rtems_task_create of TA02\n" );
 
+  rtems_task_mode( RTEMS_PREEMPT, RTEMS_PREEMPT_MASK, &prev_mode );
+  /* Lower own priority so TA01 can start up and run */
+  rtems_task_set_priority( RTEMS_SELF, 40, &pri);
 
   /* Get time of benchmark with no semaphore shuffling */
   sem_exe = 0;
   status = rtems_task_start( Task_id[0], Task01, 0 );
   directive_failed( status, "rtems_task_start of TA01" );
-
-  rtems_task_mode( RTEMS_PREEMPT, RTEMS_PREEMPT_MASK, &prev_mode );
-
-  /* Lower own priority so TA01 can start up and run */
-  rtems_task_set_priority( RTEMS_SELF, 40, &pri);
 
   /* Get time of benchmark with semaphore shuffling */
   sem_exe = 1;

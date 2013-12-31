@@ -41,6 +41,7 @@ def build(bld):
     bld.recurse('interrupt-latency')
     bld.recurse('semaphore-shuffle')
     bld.recurse('message-latency')
+    bld.recurse('deadlock-break')
 
 def rebuild(ctx):
     import waflib.Options
