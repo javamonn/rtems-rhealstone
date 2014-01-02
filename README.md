@@ -18,4 +18,4 @@ the Rhealstone benchmarks.
 
 The original proposal outlining the Rhealstone benchmark can be found [here](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1989/8902/8902a/8902a.htm).
 
-Some other implementations can be seen on [FreeRTOS](http://timsengineeringblog.weebly.com/masters-thesis.html) and [iRMX](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1990/9004/9004d/9004d.htm#00b9_0015).
+Some other implementations can be seen on [FreeRTOS](http://timsengineeringblog.weebly.com/masters-thesis.html) and [iRMX](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1990/9004/9004d/9004d.htm).
