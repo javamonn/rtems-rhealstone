@@ -1,4 +1,4 @@
-= Task Switch Benchmark
+= Task Preemption Benchmark
 
   This benchmark measures the average time it takes the system to recognize
   a ready higher priority task and switch to it from a lower priority task.

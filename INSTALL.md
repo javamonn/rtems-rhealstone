@@ -44,20 +44,20 @@ Steps
 7. Run the benchmarks using the simulator:
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \ 
-     ./build/sparc-rtems4.11-sis/task-switch/task-switch/task-switch.exe
+     ./build/sparc-rtems4.11-sis/task-switch/task-switch.exe
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \
-     ./build/sparc-rtems4.11-sis/task-switch/task-preempt/task-preempt.exe
+     ./build/sparc-rtems4.11-sis/task-preempt/task-preempt.exe
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \
-     ./build/sparc-rtems4.11-sis/task-switch/interrupt-latency/interrupt-latency.exe
+     ./build/sparc-rtems4.11-sis/interrupt-latency/interrupt-latency.exe
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \
-     ./build/sparc-rtems4.11-sis/task-switch/semaphore-shuffle/semaphore-shuffle.exe
+     ./build/sparc-rtems4.11-sis/semaphore-shuffle/semaphore-shuffle.exe
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \
-     ./build/sparc-rtems4.11-sis/task-switch/deadlock-break/deadlock-break.exe
+     ./build/sparc-rtems4.11-sis/deadlock-break/deadlock-break.exe
 
    $ /opt/rtems-4.11/bin/build/sparc-rtems4.11-run \
-     ./build/sparc-rtems4.11-sis/task-switch/message-latency/message-latency.exe
+     ./build/sparc-rtems4.11-sis/message-latency/message-latency.exe
 

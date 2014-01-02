@@ -1,4 +1,4 @@
-= Task Switch Benchmark
+= Semaphore Shuffle Benchmark
 
   This benchmark measures the average delay between a task's release of a
   semaphore and the activation of another task blocked on that semaphore.

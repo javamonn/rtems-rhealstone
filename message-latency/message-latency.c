@@ -15,6 +15,7 @@ rtems_task Task02( rtems_task_argument ignored );
 
 uint32_t    telapsed;
 uint32_t    tloop_overhead;
+uint32_t    treceive_overhead;
 uint32_t    count;
 rtems_id    Task_id[2];
 rtems_name  Task_name[2];
@@ -75,6 +76,9 @@ rtems_task Task01( rtems_task_argument ignored )
 {
   rtems_status_code status;
 
+  /* Put a message in the queue so recieve overhead can be found. */
+  (void) rtems_message_queue_send( Queue_id, Buffer, MESSAGE_SIZE );
+
   /* Start up second task, get preempted */
   status = rtems_task_start( Task_id[1], Task02, 0 );
   directive_failed( status, "rtems_task_start" );
@@ -91,6 +95,17 @@ rtems_task Task01( rtems_task_argument ignored )
 rtems_task Task02( rtems_task_argument ignored )
 {
   size_t size;
+
+  /* find recieve overhead - no preempt or task switch */
+  benchmark_timer_initialize();
+  (void) rtems_message_queue_receive(
+             Queue_id,
+             (long (*)[4]) Buffer,
+             &size,
+             RTEMS_DEFAULT_OPTIONS,
+             RTEMS_NO_TIMEOUT
+           );
+  treceive_overhead = benchmark_timer_read();
   
   /* Benchmark code */
   benchmark_timer_initialize();
@@ -108,9 +123,9 @@ rtems_task Task02( rtems_task_argument ignored )
   put_time(
      "Rhealstone: Intertask Message Latency",
      telapsed,                     /* Total time of all benchmarks */
-     BENCHMARKS,                   /* count1 benchmarks (only count1 preemptions) */
+     BENCHMARKS - 1,               /* Total benchmarks */
      tloop_overhead,               /* Overhead of loops */
-     0                             /* No directive overhead */
+     treceive_overhead             /* Overhead of recieve call and task switch */
   );
 
   rtems_test_exit( 0 );
