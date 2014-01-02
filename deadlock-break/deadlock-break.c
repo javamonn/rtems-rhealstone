@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2014 Daniel Ramirez. (javamonn@gmail.com)
+ *
+ * The license and distribution terms for this file may be
+ * found in the file LICENSE in this distribution or at
+ * http://www.rtems.com/license/LICENSE.
+ */
+
 #include <rtems/timerdrv.h>
 #include "tmacros.h"
 #include "timesys.h"

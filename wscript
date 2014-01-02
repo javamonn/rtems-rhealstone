@@ -1,4 +1,4 @@
-# Copyright 2013 Chris Johns (chrisj@rtems.org)
+# Copyright 2014 Daniel Ramirez (javamonn@gmail.com)
 #
 # This file's license is 2-clause BSD as in this distribution's LICENSE.2 file.
 #
