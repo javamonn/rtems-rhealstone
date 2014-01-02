@@ -1,4 +1,4 @@
-##Rhealstone Benchmarks For RTEMS
+##Rhealstone Benchmark For RTEMS
 
 This is an implementation of the Rhealstone benchmarks for RTEMS.
 
