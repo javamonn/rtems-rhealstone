@@ -1,6 +1,6 @@
 # Copyright 2014 Daniel Ramirez
 #
-# This file's license is 2-clause BSD as in this distribution's LICENSE.2 file.
+# This file's license is 2-clause BSD as in this distribution's LICENSE file.
 #
 
 # Waf build script for an RTEMS Hello

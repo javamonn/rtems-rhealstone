@@ -90,9 +90,6 @@ rtems_task Task_1(
   rtems_task_argument argument
 )
 {
-#if defined(RTEMS_SMP)
-  rtems_interrupt_level level;
-#endif
   Chain_Control   *ready_queues;
 
   Install_tm27_vector( Isr_handler ) ;
